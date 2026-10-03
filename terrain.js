@@ -259,6 +259,26 @@ class Terrain {
         this.spawnDebris(cx, cy, radius);
     }
 
+    // Carve a smooth tunnel between two points (Laser Drill)
+    carveTunnel(x1, y1, x2, y2, radius = 24) {
+        const dist = Math.hypot(x2 - x1, y2 - y1);
+        const steps = Math.max(1, Math.ceil(dist / (radius * 0.45)));
+        for (let i = 0; i <= steps; i++) {
+            const t = i / steps;
+            const cx = x1 + (x2 - x1) * t;
+            const cy = y1 + (y2 - y1) * t;
+            this.carveCrater(cx, cy, radius);
+        }
+    }
+
+    // Carve vertical column through entire island (Sunbeam / Concrete Donkey)
+    carveVerticalShaft(cx, width = 45) {
+        for (let y = 100; y < this.waterLevel; y += width * 0.7) {
+            this.carveCrater(cx, y, width);
+        }
+    }
+
+
     spawnDebris(cx, cy, radius) {
         const count = Math.min(60, Math.floor(radius * 0.9));
         const colors = ['#874d2b', '#5c321a', '#22c55e', '#a76a43', '#333333'];

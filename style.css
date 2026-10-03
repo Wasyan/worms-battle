@@ -80,6 +80,17 @@ body {
     color: #ffffff;
 }
 
+.badge.green {
+    background: linear-gradient(135deg, #22c55e, #15803d);
+    color: #ffffff;
+}
+
+.badge.yellow {
+    background: linear-gradient(135deg, #facc15, #ca8a04);
+    color: #0f172a;
+}
+
+
 .timer-box {
     background: rgba(15, 23, 42, 0.85);
     backdrop-filter: blur(8px);
@@ -386,26 +397,54 @@ select, input[type="number"] {
     outline: none;
 }
 
+/* Weapon Slot Ammo Badge & Disabled */
+.weapon-ammo {
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    font-size: 10px;
+    font-weight: 800;
+    color: #facc15;
+    background: rgba(15, 23, 42, 0.7);
+    padding: 1px 4px;
+    border-radius: 4px;
+}
+
+.weapon-slot.disabled, .arsenal-item.disabled {
+    opacity: 0.32;
+    filter: grayscale(85%);
+    pointer-events: none;
+    border-color: #334155 !important;
+}
+
 /* Arsenal Grid */
 .arsenal-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
     width: 100%;
     margin-bottom: 20px;
+}
+
+@media (max-width: 800px) {
+    .arsenal-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
 }
 
 .arsenal-item {
     background: #0f172a;
     border: 2px solid #334155;
     border-radius: 12px;
-    padding: 12px 8px;
+    padding: 10px 6px;
     display: flex;
     flex-direction: column;
     align-items: center;
     cursor: pointer;
+    position: relative;
     transition: all 0.2s;
 }
+
 
 .arsenal-item:hover {
     border-color: #38bdf8;

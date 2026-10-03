@@ -57,45 +57,65 @@
             <div class="quickbar">
                 <div class="weapon-slot active" data-weapon="bazooka">
                     <span class="weapon-key">1</span>
+                    <span class="weapon-ammo">∞</span>
                     <span class="weapon-icon">🚀</span>
                     <span class="weapon-name">Базука</span>
                 </div>
                 <div class="weapon-slot" data-weapon="grenade">
                     <span class="weapon-key">2</span>
+                    <span class="weapon-ammo">x5</span>
                     <span class="weapon-icon">💣</span>
                     <span class="weapon-name">Граната</span>
                 </div>
                 <div class="weapon-slot" data-weapon="cluster">
                     <span class="weapon-key">3</span>
+                    <span class="weapon-ammo">x3</span>
                     <span class="weapon-icon">💥</span>
                     <span class="weapon-name">Кластер</span>
                 </div>
                 <div class="weapon-slot" data-weapon="shotgun">
                     <span class="weapon-key">4</span>
+                    <span class="weapon-ammo">∞</span>
                     <span class="weapon-icon">🔫</span>
                     <span class="weapon-name">Дробовик</span>
                 </div>
                 <div class="weapon-slot" data-weapon="dynamite">
                     <span class="weapon-key">5</span>
+                    <span class="weapon-ammo">x2</span>
                     <span class="weapon-icon">🧨</span>
                     <span class="weapon-name">Динамит</span>
                 </div>
                 <div class="weapon-slot" data-weapon="bat">
                     <span class="weapon-key">6</span>
+                    <span class="weapon-ammo">x2</span>
                     <span class="weapon-icon">🥊</span>
                     <span class="weapon-name">Бита</span>
                 </div>
-                <div class="weapon-slot" data-weapon="airstrike">
+                <div class="weapon-slot" data-weapon="holy">
                     <span class="weapon-key">7</span>
-                    <span class="weapon-icon">✈️</span>
-                    <span class="weapon-name">Авиаудар</span>
+                    <span class="weapon-ammo">x1</span>
+                    <span class="weapon-icon">✝️</span>
+                    <span class="weapon-name">Св. Граната</span>
                 </div>
-                <div class="weapon-slot" data-weapon="teleport">
+                <div class="weapon-slot" data-weapon="donkey">
                     <span class="weapon-key">8</span>
-                    <span class="weapon-icon">🛸</span>
-                    <span class="weapon-name">Телепорт</span>
+                    <span class="weapon-ammo">x1</span>
+                    <span class="weapon-icon">🫏</span>
+                    <span class="weapon-name">Осёл</span>
                 </div>
-                <button id="btn-open-arsenal" class="btn-icon" style="width: 50px; height: 60px;" title="Все оружие (Q / ПКМ)">🎒</button>
+                <div class="weapon-slot" data-weapon="electro">
+                    <span class="weapon-key">9</span>
+                    <span class="weapon-ammo">x3</span>
+                    <span class="weapon-icon">⚡</span>
+                    <span class="weapon-name">Электрошок</span>
+                </div>
+                <div class="weapon-slot" data-weapon="laser">
+                    <span class="weapon-key">0</span>
+                    <span class="weapon-ammo">x3</span>
+                    <span class="weapon-icon">🔦</span>
+                    <span class="weapon-name">Бур</span>
+                </div>
+                <button id="btn-open-arsenal" class="btn-icon" style="width: 50px; height: 60px;" title="Все 15 видов оружия (Q / ПКМ)">🎒</button>
             </div>
 
             <!-- Mobile Touch Controls -->
@@ -113,7 +133,6 @@
         </div>
     </div>
 
-
     <!-- Start / Main Menu Modal -->
     <div id="start-modal" class="modal-overlay">
         <div class="modal-card">
@@ -124,29 +143,43 @@
                 <div class="setting-item">
                     <div class="setting-label">РЕЖИМ ИГРЫ</div>
                     <select id="select-mode">
-                        <option value="pvp">⚔️ 2 Игрока (На одном экране / Hotseat)</option>
-                        <option value="pve">🤖 Против Компьютера (AI Бот)</option>
+                        <option value="pvp">⚔️ Игроки (На одном экране / Hotseat)</option>
+                        <option value="pve">🤖 Против Компьютера (AI Боты)</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-label">КОЛИЧЕСТВО КОМАНД</div>
+                    <select id="select-teams-count">
+                        <option value="2" selected>2 Команды (🔴 Красные vs 🔵 Синие)</option>
+                        <option value="3">3 Команды (+ 🟢 Зелёные)</option>
+                        <option value="4">4 Команды (+ 🟢 Зелёные и 🟡 Жёлтые!)</option>
                     </select>
                 </div>
                 <div class="setting-item">
                     <div class="setting-label">ЧЕРВЯКОВ В КОМАНДЕ</div>
                     <select id="select-worms-count">
-                        <option value="2">2 на 2 (Быстрый бой)</option>
-                        <option value="3" selected>3 на 3 (Классика)</option>
-                        <option value="4">4 на 4 (Тотальная война)</option>
+                        <option value="2">2 червяка в команде</option>
+                        <option value="3" selected>3 червяка (Классика)</option>
+                        <option value="4">4 червяка</option>
+                        <option value="5">5 червяков</option>
+                        <option value="6">6 червяков (До 24 червей на поле!)</option>
                     </select>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-label">СУПЕРОРУЖИЕ И БОНУСЫ</div>
+                    <div style="font-size: 11px; color: #cbd5e1; margin-top: 4px;">
+                        Включены: Осёл, Святая граната, Луч солнца, Аннигилятор, Бур и Ящики с бонусами 🦖!
+                    </div>
                 </div>
             </div>
 
             <div class="controls-list">
                 <div><b>A / D или Стрелки:</b> Передвижение червяка</div>
-                <div><b>W / Стрелка Вверх / Enter:</b> Прыжок вперед</div>
-                <div><b>Backspace или Shift + Вверх:</b> Высокое сальто назад</div>
-                <div><b>Мышь:</b> Направление прицеливания и выбор цели</div>
-                <div><b>Пробел:</b> Удерживай для заряда силы выстрела / Одиночный клик для дробовика/биты</div>
-                <div><b>Клавиши 1-8 или Q / ПКМ:</b> Выбор оружия из арсенала</div>
-                <div><b>Tab:</b> Переключение червяка до выстрела</div>
-                <div><b>Колесико мыши:</b> Приближение / удаление камеры (Зум)</div>
+                <div><b>W / Стрелка Вверх / Enter:</b> Прыжок вперед | <b>Backspace:</b> Сальто назад</div>
+                <div><b>Мышь:</b> Направление прицеливания и выбор цели для супероружия</div>
+                <div><b>Пробел:</b> Заряд силы выстрела / Одиночный выстрел для дробовика, бура и биты</div>
+                <div><b>Клавиши 1-9, 0 или Q / ПКМ:</b> Выбор оружия из полного арсенала (15 видов!)</div>
+                <div><b>🦖 Ящики с бонусами:</b> Собирайте падающие ящики! Бонус 🦖 превращает в <b>Мега-Гиганта (400 HP)</b>!</div>
             </div>
 
             <button id="btn-start-game" class="btn-primary">В БОЙ! 🔥</button>
@@ -155,56 +188,109 @@
 
     <!-- Weapon Arsenal Modal (Q or Right Click) -->
     <div id="weapon-arsenal" class="modal-overlay hidden">
-        <div class="modal-card">
-            <h2 class="modal-title">🎒 ОРУЖЕЙНЫЙ СКЛАД</h2>
-            <p class="modal-subtitle">Выберите вооружение для текущего хода (или жмите клавиши 1-8)</p>
+        <div class="modal-card" style="max-width: 880px;">
+            <h2 class="modal-title">🎒 ОРУЖЕЙНЫЙ СКЛАД (15 ВИДОВ)</h2>
+            <p class="modal-subtitle">Выберите оружие для текущего хода. Лимитированное оружие тратит боезапас!</p>
 
             <div class="arsenal-grid">
                 <div class="arsenal-item" data-weapon="bazooka">
+                    <span class="weapon-ammo">∞</span>
                     <div class="icon">🚀</div>
                     <div class="name">Базука</div>
-                    <div class="desc">Взрыв по контакту. Сносится ветром!</div>
+                    <div class="desc">Бесконечные ракеты. Сносится ветром!</div>
                 </div>
                 <div class="arsenal-item" data-weapon="grenade">
+                    <span class="weapon-ammo">x5</span>
                     <div class="icon">💣</div>
                     <div class="name">Граната</div>
-                    <div class="desc">3-секундный таймер. Прыгает по холмам.</div>
+                    <div class="desc">3-секундный таймер. Прыгает по склонам.</div>
                 </div>
                 <div class="arsenal-item" data-weapon="cluster">
+                    <span class="weapon-ammo">x3</span>
                     <div class="icon">💥</div>
                     <div class="name">Кластер</div>
                     <div class="desc">Распадается на 5 осколочных бомб.</div>
                 </div>
                 <div class="arsenal-item" data-weapon="shotgun">
+                    <span class="weapon-ammo">∞</span>
                     <div class="icon">🔫</div>
                     <div class="name">Дробовик</div>
-                    <div class="desc">2 выстрела за ход! Пробивает землю и сбивает в воду.</div>
+                    <div class="desc">2 выстрела за ход! Пробивает землю и отталкивает.</div>
                 </div>
                 <div class="arsenal-item" data-weapon="dynamite">
+                    <span class="weapon-ammo">x2</span>
                     <div class="icon">🧨</div>
                     <div class="name">Динамит</div>
                     <div class="desc">Огромный кратер и 75 урона! Таймер 5 сек.</div>
                 </div>
+
                 <div class="arsenal-item" data-weapon="bat">
+                    <span class="weapon-ammo">x2</span>
                     <div class="icon">🥊</div>
-                    <div class="name">Бейсбольная бита</div>
-                    <div class="desc">Ближний бой. Запускает червяка в полет в океан!</div>
+                    <div class="name">Бита</div>
+                    <div class="desc">Ближний бой. Запускает врага в полет в океан!</div>
                 </div>
+                <div class="arsenal-item" data-weapon="holy">
+                    <span class="weapon-ammo">x1</span>
+                    <div class="icon">✝️</div>
+                    <div class="name">Святая граната</div>
+                    <div class="desc">Хор "Аллилуйя!" и колоссальный взрыв 115 урона!</div>
+                </div>
+                <div class="arsenal-item" data-weapon="donkey">
+                    <span class="weapon-ammo">x1</span>
+                    <div class="icon">🫏</div>
+                    <div class="name">Мраморный осёл</div>
+                    <div class="desc">Падает с неба, с ржанием крушит породу до дна!</div>
+                </div>
+                <div class="arsenal-item" data-weapon="annihilator">
+                    <span class="weapon-ammo">x1</span>
+                    <div class="icon">🌀</div>
+                    <div class="name">Аннигилятор</div>
+                    <div class="desc">Сгусток антиматерии, стирающий ландшафт!</div>
+                </div>
+                <div class="arsenal-item" data-weapon="sunbeam">
+                    <span class="weapon-ammo">x1</span>
+                    <div class="icon">☀️</div>
+                    <div class="name">Луч солнца</div>
+                    <div class="desc">Орбитальный столп священного огня сквозь остров!</div>
+                </div>
+
                 <div class="arsenal-item" data-weapon="airstrike">
+                    <span class="weapon-ammo">x1</span>
                     <div class="icon">✈️</div>
                     <div class="name">Авиаудар</div>
-                    <div class="desc">Кликните по карте: истребитель сбросит 5 бомб.</div>
+                    <div class="desc">Истребитель сбрасывает 5 бомб в точку клика.</div>
+                </div>
+                <div class="arsenal-item" data-weapon="carpet">
+                    <span class="weapon-ammo">x1</span>
+                    <div class="icon">🛩️</div>
+                    <div class="name">Ковровый удар</div>
+                    <div class="desc">Бомбардировщик сыплет ковер из 10 бомб!</div>
+                </div>
+                <div class="arsenal-item" data-weapon="laser">
+                    <span class="weapon-ammo">x3</span>
+                    <div class="icon">🔦</div>
+                    <div class="name">Лазерный бур</div>
+                    <div class="desc">Прожигает сквозной тоннель сквозь землю и врагов!</div>
+                </div>
+                <div class="arsenal-item" data-weapon="electro">
+                    <span class="weapon-ammo">x3</span>
+                    <div class="icon">⚡</div>
+                    <div class="name">Электрошок</div>
+                    <div class="desc">Мощная молния бьет током, нанося 48 урона.</div>
                 </div>
                 <div class="arsenal-item" data-weapon="teleport">
+                    <span class="weapon-ammo">x2</span>
                     <div class="icon">🛸</div>
                     <div class="name">Телепорт</div>
-                    <div class="desc">Кликните по любой точке карты для перемещения.</div>
+                    <div class="desc">Мгновенное перемещение в безопасную точку.</div>
                 </div>
             </div>
 
             <button id="btn-close-arsenal" class="btn-primary" style="padding: 10px 24px; font-size: 15px;">Закрыть</button>
         </div>
     </div>
+
 
     <!-- Help Modal -->
     <div id="help-modal" class="modal-overlay hidden">
@@ -248,6 +334,7 @@
             const btnStart = document.getElementById('btn-start-game');
             const selectMode = document.getElementById('select-mode');
             const selectWormsCount = document.getElementById('select-worms-count');
+            const selectTeamsCount = document.getElementById('select-teams-count');
 
             const arsenalModal = document.getElementById('weapon-arsenal');
             const btnOpenArsenal = document.getElementById('btn-open-arsenal');
@@ -268,8 +355,9 @@
                 if (window.soundSystem) window.soundSystem.ensureContext();
                 const mode = selectMode.value;
                 const count = parseInt(selectWormsCount.value, 10);
+                const teams = parseInt(selectTeamsCount ? selectTeamsCount.value : "2", 10);
                 startModal.classList.add('hidden');
-                game.startNewGame(mode, count);
+                game.startNewGame(mode, count, teams);
             });
 
             // Restart handler
@@ -277,8 +365,10 @@
                 gameOverModal.classList.add('hidden');
                 const mode = selectMode.value;
                 const count = parseInt(selectWormsCount.value, 10);
-                game.startNewGame(mode, count);
+                const teams = parseInt(selectTeamsCount ? selectTeamsCount.value : "2", 10);
+                game.startNewGame(mode, count, teams);
             });
+
 
             // Arsenal Modal handlers
             btnOpenArsenal.addEventListener('click', () => {

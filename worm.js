@@ -19,6 +19,10 @@ class Worm {
         this.aimAngle = this.facing === 1 ? -0.4 : -Math.PI + 0.4;
         this.onGround = false;
 
+        // Giant Worm Bonus state
+        this.isGiant = false;
+        this.giantScale = 1.0;
+
         // Visual & animation properties
         this.walkCycle = 0;
         this.squish = 1.0;
@@ -40,6 +44,19 @@ class Worm {
         this.botTargetAngle = 0;
         this.botChosenWeapon = 'bazooka';
     }
+
+    becomeGiant() {
+        if (this.isGiant) return;
+        this.isGiant = true;
+        this.maxHp = 400;
+        this.hp = 400;
+        this.radius = 22;
+        this.say("Я СТАЛ ГИГАНТОМ! 🦖", 120);
+        if (window.soundSystem) {
+            window.soundSystem.playGiantTransform();
+        }
+    }
+
 
     say(text, duration = 90) {
         this.speechText = text;
@@ -185,10 +202,13 @@ class Worm {
     }
 
     applyImpulse(ix, iy) {
-        this.vx += ix;
-        this.vy += iy;
+        // Giant worm has tremendous mass and knockback resistance
+        const massFactor = this.isGiant ? 0.38 : 1.0;
+        this.vx += ix * massFactor;
+        this.vy += iy * massFactor;
         this.onGround = false;
     }
+
 
     die() {
         this.isAlive = false;
@@ -244,8 +264,9 @@ class Worm {
         // Active pointer indicator arrow above worm
         if (isActive) {
             const bounce = Math.sin(Date.now() * 0.008) * 4;
-            const arrowY = this.y - 42 + bounce;
-            ctx.fillStyle = this.team === 'red' ? '#ef4444' : '#3b82f6';
+            const arrowY = this.y - (this.isGiant ? 58 : 42) + bounce;
+            const teamColors = { red: '#ef4444', blue: '#3b82f6', green: '#22c55e', yellow: '#eab308' };
+            ctx.fillStyle = teamColors[this.team] || '#ffffff';
             ctx.beginPath();
             ctx.moveTo(this.x, arrowY + 8);
             ctx.lineTo(this.x - 7, arrowY);
@@ -257,12 +278,33 @@ class Worm {
             ctx.stroke();
         }
 
+        // Giant Worm Aura effect
+        if (this.isGiant) {
+            ctx.save();
+            const pulse = Math.sin(Date.now() * 0.008) * 5;
+            ctx.strokeStyle = 'rgba(250, 204, 21, 0.55)';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y - 10, 28 + pulse, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Golden sparks
+            if (Math.random() < 0.3) {
+                ctx.fillStyle = '#fde047';
+                ctx.beginPath();
+                ctx.arc(this.x + (Math.random() - 0.5) * 45, this.y + (Math.random() - 0.5) * 45, 2.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.restore();
+        }
+
         // Health bar & name tag
         this.drawHealthBar(ctx, isActive);
 
         // Worm Body Rendering
         ctx.translate(this.x, this.y);
-        ctx.scale(this.facing, 1);
+        const scaleVal = this.isGiant ? 2.1 : 1.0;
+        ctx.scale(this.facing * scaleVal, scaleVal);
 
         // Body squish animation during walking or landing
         const squishX = 1 + Math.sin(this.walkCycle) * 0.18;
@@ -270,8 +312,8 @@ class Worm {
         ctx.scale(squishX, squishY);
 
         // Worm Flesh Colors
-        const wormPink = '#fb7185';
-        const wormShadow = '#e11d48';
+        const wormPink = this.isGiant ? '#f59e0b' : '#fb7185';
+        const wormShadow = this.isGiant ? '#b45309' : '#e11d48';
 
         // 1. Tail segment
         ctx.fillStyle = wormShadow;
@@ -290,33 +332,59 @@ class Worm {
         ctx.arc(4, -7, 9, 0, Math.PI * 2);
         ctx.fill();
 
-        // 4. Team Hat / Headgear!
+        // 4. Team Hat / Headgear for 4 Teams!
         if (this.team === 'red') {
             // Red Bandana with trailing knot
             ctx.fillStyle = '#dc2626';
             ctx.beginPath();
             ctx.arc(4, -10, 9.5, Math.PI * 0.9, Math.PI * 2.1);
             ctx.fill();
-            // Bandana knot tails
             ctx.beginPath();
             ctx.moveTo(-4, -8);
             ctx.lineTo(-12, -4);
             ctx.lineTo(-10, -11);
             ctx.closePath();
             ctx.fill();
-        } else {
-            // Blue Military Helmet with rim
+        } else if (this.team === 'blue') {
+            // Blue Military Helmet with rim & star
             ctx.fillStyle = '#1d4ed8';
             ctx.beginPath();
             ctx.arc(4, -10, 10.5, Math.PI * 0.8, Math.PI * 2.2);
             ctx.fill();
-            // Helmet rim
             ctx.fillStyle = '#1e3a8a';
             ctx.fillRect(-6, -11, 20, 3.5);
-            // Little star/badge
             ctx.fillStyle = '#facc15';
             ctx.beginPath();
             ctx.arc(5, -12, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+        } else if (this.team === 'green') {
+            // Green Commando Beret
+            ctx.fillStyle = '#15803d';
+            ctx.beginPath();
+            ctx.ellipse(3, -11, 12, 5.5, -0.25, 0, Math.PI * 2);
+            ctx.fill();
+            // Gold Military badge
+            ctx.fillStyle = '#ca8a04';
+            ctx.beginPath();
+            ctx.arc(8, -11, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+        } else if (this.team === 'yellow') {
+            // Royal Gold Crown with gems
+            ctx.fillStyle = '#eab308';
+            ctx.beginPath();
+            ctx.moveTo(-5, -9);
+            ctx.lineTo(-6, -16);
+            ctx.lineTo(-1, -12);
+            ctx.lineTo(4, -18);
+            ctx.lineTo(9, -12);
+            ctx.lineTo(14, -16);
+            ctx.lineTo(13, -9);
+            ctx.closePath();
+            ctx.fill();
+            // Red Ruby
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath();
+            ctx.arc(4, -13, 2, 0, Math.PI * 2);
             ctx.fill();
         }
 
@@ -324,7 +392,6 @@ class Worm {
         const eyeX = 7;
         const eyeY = -8;
         if (this.isBlinking) {
-            // Closed eyes
             ctx.strokeStyle = '#1e293b';
             ctx.lineWidth = 1.5;
             ctx.beginPath();
@@ -332,14 +399,12 @@ class Worm {
             ctx.lineTo(eyeX + 3, eyeY);
             ctx.stroke();
         } else {
-            // White eyeballs
             ctx.fillStyle = '#ffffff';
             ctx.beginPath();
             ctx.arc(eyeX, eyeY, 3.5, 0, Math.PI * 2);
             ctx.arc(eyeX - 4, eyeY, 3.0, 0, Math.PI * 2);
             ctx.fill();
 
-            // Dark Pupils looking towards aiming direction
             ctx.fillStyle = '#0f172a';
             ctx.beginPath();
             ctx.arc(eyeX + 1.2, eyeY - 0.2, 1.8, 0, Math.PI * 2);
@@ -368,11 +433,9 @@ class Worm {
     }
 
     drawWeapon(ctx, weapon) {
-        // Draw weapon angled towards aimAngle
         ctx.save();
         ctx.translate(2, -4);
 
-        // Adjust relative angle for flipped orientation
         let renderAngle = this.aimAngle;
         if (this.facing === -1) {
             renderAngle = Math.PI - this.aimAngle;
@@ -382,10 +445,8 @@ class Worm {
 
         switch (weapon) {
             case 'bazooka':
-                // Bazooka green launch tube
                 ctx.fillStyle = '#3f6212';
                 ctx.fillRect(0, -4, 20, 8);
-                // Metal nozzle & trigger
                 ctx.fillStyle = '#1e293b';
                 ctx.fillRect(17, -5, 4, 10);
                 ctx.fillRect(-2, -5, 4, 10);
@@ -393,34 +454,84 @@ class Worm {
                 break;
             case 'grenade':
             case 'cluster':
-                // Hand holding round grenade
                 ctx.fillStyle = weapon === 'cluster' ? '#dc2626' : '#15803d';
                 ctx.beginPath();
                 ctx.arc(12, 0, 5.5, 0, Math.PI * 2);
                 ctx.fill();
-                // Pin / lever
                 ctx.fillStyle = '#94a3b8';
                 ctx.fillRect(11, -7, 2, 4);
                 break;
+            case 'holy':
+                // Holy Hand Grenade: golden sphere with ruby cross
+                ctx.fillStyle = '#eab308';
+                ctx.beginPath();
+                ctx.arc(12, 0, 6.5, 0, Math.PI * 2);
+                ctx.fill();
+                // Golden Cross
+                ctx.fillStyle = '#ef4444';
+                ctx.fillRect(11, -10, 2.5, 6);
+                ctx.fillRect(9, -8, 6.5, 2.5);
+                break;
+            case 'donkey':
+                // Concrete Donkey statuette
+                ctx.fillStyle = '#94a3b8';
+                ctx.fillRect(4, -6, 14, 10);
+                ctx.fillRect(14, -12, 6, 8);
+                ctx.fillStyle = '#cbd5e1';
+                ctx.fillRect(15, -15, 3, 5); // Ear
+                break;
+            case 'annihilator':
+                // Annihilator Cannon: heavy dark matter launcher
+                ctx.fillStyle = '#312e81';
+                ctx.fillRect(2, -6, 22, 11);
+                ctx.fillStyle = '#a855f7';
+                ctx.beginPath();
+                ctx.arc(22, 0, 5, 0, Math.PI * 2);
+                ctx.fill();
+                break;
+            case 'sunbeam':
+                // Solar Beacon staff
+                ctx.fillStyle = '#ca8a04';
+                ctx.fillRect(4, -2, 18, 4);
+                ctx.fillStyle = '#fde047';
+                ctx.beginPath();
+                ctx.arc(22, 0, 6, 0, Math.PI * 2);
+                ctx.fill();
+                break;
+            case 'laser':
+                // Laser Drill with warning hazard stripes
+                ctx.fillStyle = '#eab308';
+                ctx.fillRect(2, -5, 18, 9);
+                ctx.fillStyle = '#1e293b';
+                ctx.fillRect(8, -5, 4, 9);
+                ctx.fillStyle = '#ef4444';
+                ctx.beginPath();
+                ctx.arc(21, 0, 3.5, 0, Math.PI * 2);
+                ctx.fill();
+                break;
+            case 'electro':
+                // Taser stunner with sparking prongs
+                ctx.fillStyle = '#0284c7';
+                ctx.fillRect(4, -4, 12, 8);
+                ctx.fillStyle = '#38bdf8';
+                ctx.fillRect(16, -6, 5, 3);
+                ctx.fillRect(16, 3, 5, 3);
+                break;
             case 'shotgun':
-                // Double barrel shotgun
-                ctx.fillStyle = '#78350f'; // Wood stock
+                ctx.fillStyle = '#78350f';
                 ctx.fillRect(-2, -2, 8, 5);
-                ctx.fillStyle = '#475569'; // Metal dual barrel
+                ctx.fillStyle = '#475569';
                 ctx.fillRect(6, -3, 16, 5);
                 break;
             case 'dynamite':
-                // Red stick of dynamite with burning fuse
                 ctx.fillStyle = '#ef4444';
                 ctx.fillRect(8, -4, 14, 7);
-                // Spark
                 ctx.fillStyle = '#facc15';
                 ctx.beginPath();
                 ctx.arc(24, -2, 2.5, 0, Math.PI * 2);
                 ctx.fill();
                 break;
             case 'bat':
-                // Baseball bat
                 ctx.fillStyle = '#d97706';
                 ctx.beginPath();
                 ctx.moveTo(0, -2);
@@ -431,8 +542,8 @@ class Worm {
                 ctx.fill();
                 break;
             case 'airstrike':
-                // Walkie-talkie radio / radio antenna
-                ctx.fillStyle = '#334155';
+            case 'carpet':
+                ctx.fillStyle = weapon === 'carpet' ? '#b91c1c' : '#334155';
                 ctx.fillRect(4, -6, 8, 12);
                 ctx.strokeStyle = '#94a3b8';
                 ctx.lineWidth = 1.5;
@@ -442,7 +553,6 @@ class Worm {
                 ctx.stroke();
                 break;
             case 'teleport':
-                // Sci-fi remote beamer
                 ctx.fillStyle = '#06b6d4';
                 ctx.fillRect(6, -4, 12, 7);
                 ctx.fillStyle = '#a5f3fc';
@@ -456,33 +566,49 @@ class Worm {
     }
 
     drawHealthBar(ctx, isActive) {
-        const barW = 34;
-        const barH = 5;
+        const barW = this.isGiant ? 52 : 36;
+        const barH = this.isGiant ? 7 : 5;
         const barX = this.x - barW / 2;
-        const barY = this.y - 28;
+        const barY = this.y - (this.isGiant ? 44 : 28);
 
         // Name tag
+        const teamColors = {
+            red: { fill: '#fca5a5', bar: '#ef4444' },
+            blue: { fill: '#93c5fd', bar: '#3b82f6' },
+            green: { fill: '#86efac', bar: '#22c55e' },
+            yellow: { fill: '#fde047', bar: '#eab308' }
+        };
+        const colors = teamColors[this.team] || teamColors.red;
+
         ctx.font = 'bold 10px "Segoe UI", sans-serif';
         ctx.textAlign = 'center';
         ctx.fillStyle = '#0f172a';
         ctx.fillText(this.name, this.x + 1, barY - 4);
-        ctx.fillStyle = this.team === 'red' ? '#fca5a5' : '#93c5fd';
+        ctx.fillStyle = colors.fill;
         ctx.fillText(this.name, this.x, barY - 5);
 
-        // Bar background
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.8)';
+        // Bar frame
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
         ctx.fillRect(barX - 1, barY - 1, barW + 2, barH + 2);
+
+        // Golden frame for giant
+        if (this.isGiant) {
+            ctx.strokeStyle = '#facc15';
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(barX - 1.5, barY - 1.5, barW + 3, barH + 3);
+        }
 
         // Bar fill
         const fillW = Math.max(0, (this.hp / this.maxHp) * barW);
-        ctx.fillStyle = this.team === 'red' ? '#ef4444' : '#3b82f6';
+        ctx.fillStyle = colors.bar;
         ctx.fillRect(barX, barY, fillW, barH);
 
         // HP number
-        ctx.font = '8px sans-serif';
+        ctx.font = this.isGiant ? 'bold 9px sans-serif' : '8px sans-serif';
         ctx.fillStyle = '#ffffff';
-        ctx.fillText(`${this.hp}`, this.x, barY + barH - 0.5);
+        ctx.fillText(`${this.hp}`, this.x, barY + barH - (this.isGiant ? 1 : 0.5));
     }
+
 
     drawSpeechBubble(ctx) {
         ctx.save();
