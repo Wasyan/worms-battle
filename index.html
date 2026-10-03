@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Червячные Войны 2D (Worms Battle)</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas id="game-canvas"></canvas>
+
+    <!-- Main Game HUD -->
+    <div id="hud">
+        <!-- Top Bar -->
+        <div class="hud-top">
+            <div class="hud-group">
+                <div id="team-banner" class="badge red">Ход: Красные</div>
+                <button id="btn-cycle-worm" class="btn-icon" title="Сменить активного червяка (Tab)">🔄</button>
+            </div>
+
+            <div class="hud-group">
+                <div class="timer-box">
+                    <span class="timer-label">ТАЙМЕР</span>
+                    <span id="turn-timer" class="timer-value">45</span>
+                </div>
+            </div>
+
+            <div class="hud-group">
+                <div class="wind-box">
+                    <div class="wind-header">
+                        <span>ВЕТЕР</span>
+                        <span id="wind-text">◀ 0</span>
+                    </div>
+                    <div class="wind-track">
+                        <div id="wind-bar" class="wind-bar"></div>
+                    </div>
+                </div>
+                <button id="btn-sound" class="btn-icon" title="Звук (Вкл/Выкл)">🔊</button>
+                <button id="btn-help" class="btn-icon" title="Справка и управление">❓</button>
+            </div>
+        </div>
+
+        <!-- Bottom Bar -->
+        <div class="hud-bottom">
+            <!-- Power Charge Gauge -->
+            <div class="power-container">
+                <div class="power-header">
+                    <span>СИЛА ВЫСТРЕЛА (Удерживай ПРОБЕЛ)</span>
+                    <span id="cur-weapon-name">Базука</span>
+                </div>
+                <div class="power-track">
+                    <div id="charge-bar" class="power-fill"></div>
+                </div>
+            </div>
+
+            <!-- Quick Weapon Bar -->
+            <div class="quickbar">
+                <div class="weapon-slot active" data-weapon="bazooka">
+                    <span class="weapon-key">1</span>
+                    <span class="weapon-icon">🚀</span>
+                    <span class="weapon-name">Базука</span>
+                </div>
+                <div class="weapon-slot" data-weapon="grenade">
+                    <span class="weapon-key">2</span>
+                    <span class="weapon-icon">💣</span>
+                    <span class="weapon-name">Граната</span>
+                </div>
+                <div class="weapon-slot" data-weapon="cluster">
+                    <span class="weapon-key">3</span>
+                    <span class="weapon-icon">💥</span>
+                    <span class="weapon-name">Кластер</span>
+                </div>
+                <div class="weapon-slot" data-weapon="shotgun">
+                    <span class="weapon-key">4</span>
+                    <span class="weapon-icon">🔫</span>
+                    <span class="weapon-name">Дробовик</span>
+                </div>
+                <div class="weapon-slot" data-weapon="dynamite">
+                    <span class="weapon-key">5</span>
+                    <span class="weapon-icon">🧨</span>
+                    <span class="weapon-name">Динамит</span>
+                </div>
+                <div class="weapon-slot" data-weapon="bat">
+                    <span class="weapon-key">6</span>
+                    <span class="weapon-icon">🥊</span>
+                    <span class="weapon-name">Бита</span>
+                </div>
+                <div class="weapon-slot" data-weapon="airstrike">
+                    <span class="weapon-key">7</span>
+                    <span class="weapon-icon">✈️</span>
+                    <span class="weapon-name">Авиаудар</span>
+                </div>
+                <div class="weapon-slot" data-weapon="teleport">
+                    <span class="weapon-key">8</span>
+                    <span class="weapon-icon">🛸</span>
+                    <span class="weapon-name">Телепорт</span>
+                </div>
+                <button id="btn-open-arsenal" class="btn-icon" style="width: 50px; height: 60px;" title="Все оружие (Q / ПКМ)">🎒</button>
+            </div>
+
+            <!-- Mobile Touch Controls -->
+            <div class="mobile-controls">
+                <div class="touch-btn-group">
+                    <button id="touch-left" class="touch-btn" title="Влево">◀</button>
+                    <button id="touch-right" class="touch-btn" title="Вправо">▶</button>
+                    <button id="touch-jump" class="touch-btn" title="Прыжок">🦘</button>
+                </div>
+                <div class="touch-btn-group">
+                    <button id="touch-fire" class="touch-btn fire" title="Огонь (Зажать)">🔥</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- Start / Main Menu Modal -->
+    <div id="start-modal" class="modal-overlay">
+        <div class="modal-card">
+            <h1 class="modal-title">🐛 ЧЕРВЯЧНЫЕ ВОЙНЫ 2D</h1>
+            <p class="modal-subtitle">Пошаговая тактическая битва с разрушаемым ландшафтом и физикой</p>
+
+            <div class="settings-grid">
+                <div class="setting-item">
+                    <div class="setting-label">РЕЖИМ ИГРЫ</div>
+                    <select id="select-mode">
+                        <option value="pvp">⚔️ 2 Игрока (На одном экране / Hotseat)</option>
+                        <option value="pve">🤖 Против Компьютера (AI Бот)</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-label">ЧЕРВЯКОВ В КОМАНДЕ</div>
+                    <select id="select-worms-count">
+                        <option value="2">2 на 2 (Быстрый бой)</option>
+                        <option value="3" selected>3 на 3 (Классика)</option>
+                        <option value="4">4 на 4 (Тотальная война)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="controls-list">
+                <div><b>A / D или Стрелки:</b> Передвижение червяка</div>
+                <div><b>W / Стрелка Вверх / Enter:</b> Прыжок вперед</div>
+                <div><b>Backspace или Shift + Вверх:</b> Высокое сальто назад</div>
+                <div><b>Мышь:</b> Направление прицеливания и выбор цели</div>
+                <div><b>Пробел:</b> Удерживай для заряда силы выстрела / Одиночный клик для дробовика/биты</div>
+                <div><b>Клавиши 1-8 или Q / ПКМ:</b> Выбор оружия из арсенала</div>
+                <div><b>Tab:</b> Переключение червяка до выстрела</div>
+                <div><b>Колесико мыши:</b> Приближение / удаление камеры (Зум)</div>
+            </div>
+
+            <button id="btn-start-game" class="btn-primary">В БОЙ! 🔥</button>
+        </div>
+    </div>
+
+    <!-- Weapon Arsenal Modal (Q or Right Click) -->
+    <div id="weapon-arsenal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <h2 class="modal-title">🎒 ОРУЖЕЙНЫЙ СКЛАД</h2>
+            <p class="modal-subtitle">Выберите вооружение для текущего хода (или жмите клавиши 1-8)</p>
+
+            <div class="arsenal-grid">
+                <div class="arsenal-item" data-weapon="bazooka">
+                    <div class="icon">🚀</div>
+                    <div class="name">Базука</div>
+                    <div class="desc">Взрыв по контакту. Сносится ветром!</div>
+                </div>
+                <div class="arsenal-item" data-weapon="grenade">
+                    <div class="icon">💣</div>
+                    <div class="name">Граната</div>
+                    <div class="desc">3-секундный таймер. Прыгает по холмам.</div>
+                </div>
+                <div class="arsenal-item" data-weapon="cluster">
+                    <div class="icon">💥</div>
+                    <div class="name">Кластер</div>
+                    <div class="desc">Распадается на 5 осколочных бомб.</div>
+                </div>
+                <div class="arsenal-item" data-weapon="shotgun">
+                    <div class="icon">🔫</div>
+                    <div class="name">Дробовик</div>
+                    <div class="desc">2 выстрела за ход! Пробивает землю и сбивает в воду.</div>
+                </div>
+                <div class="arsenal-item" data-weapon="dynamite">
+                    <div class="icon">🧨</div>
+                    <div class="name">Динамит</div>
+                    <div class="desc">Огромный кратер и 75 урона! Таймер 5 сек.</div>
+                </div>
+                <div class="arsenal-item" data-weapon="bat">
+                    <div class="icon">🥊</div>
+                    <div class="name">Бейсбольная бита</div>
+                    <div class="desc">Ближний бой. Запускает червяка в полет в океан!</div>
+                </div>
+                <div class="arsenal-item" data-weapon="airstrike">
+                    <div class="icon">✈️</div>
+                    <div class="name">Авиаудар</div>
+                    <div class="desc">Кликните по карте: истребитель сбросит 5 бомб.</div>
+                </div>
+                <div class="arsenal-item" data-weapon="teleport">
+                    <div class="icon">🛸</div>
+                    <div class="name">Телепорт</div>
+                    <div class="desc">Кликните по любой точке карты для перемещения.</div>
+                </div>
+            </div>
+
+            <button id="btn-close-arsenal" class="btn-primary" style="padding: 10px 24px; font-size: 15px;">Закрыть</button>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="help-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <h2 class="modal-title">📖 ПРАВИЛА И УПРАВЛЕНИЕ</h2>
+            <div class="controls-list">
+                <div><b>🎯 Цель игры:</b> Уничтожить всех червяков команды противника!</div>
+                <div><b>🌊 Вода:</b> Любой червяк, упавший в воду внизу экрана, тонет мгновенно!</div>
+                <div><b>💨 Ветер:</b> Влияет на траекторию ракет базуки. Следите за индикатором ветра сверху!</div>
+                <div><b>🏃 Отход:</b> После атаки у червяка есть 3 секунды, чтобы укрыться или отпрыгнуть.</div>
+                <div><b>💥 Разрушения:</b> Каждый взрыв выбивает настоящий кратер из острова. Пробивайте ходы или обрушивайте врагов в море!</div>
+            </div>
+            <button id="btn-close-help" class="btn-primary" style="padding: 10px 24px; font-size: 15px;">Понятно!</button>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div id="game-over-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <h1 class="modal-title">🏆 БИТВА ЗАВЕРШЕНА!</h1>
+            <h2 id="winner-text" style="color: #38bdf8; margin: 16px 0 24px 0; font-size: 28px;">Победа Красной Команды!</h2>
+            <button id="btn-restart" class="btn-primary">Играть снова 🔁</button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="audio.js"></script>
+    <script src="terrain.js"></script>
+    <script src="worm.js"></script>
+    <script src="weapons.js"></script>
+    <script src="game.js"></script>
+
+    <script>
+        // Main Controller Initializer
+        window.addEventListener('DOMContentLoaded', () => {
+            const canvas = document.getElementById('game-canvas');
+            const game = new WormsGame(canvas);
+
+            // Menu elements
+            const startModal = document.getElementById('start-modal');
+            const btnStart = document.getElementById('btn-start-game');
+            const selectMode = document.getElementById('select-mode');
+            const selectWormsCount = document.getElementById('select-worms-count');
+
+            const arsenalModal = document.getElementById('weapon-arsenal');
+            const btnOpenArsenal = document.getElementById('btn-open-arsenal');
+            const btnCloseArsenal = document.getElementById('btn-close-arsenal');
+
+            const helpModal = document.getElementById('help-modal');
+            const btnHelp = document.getElementById('btn-help');
+            const btnCloseHelp = document.getElementById('btn-close-help');
+
+            const gameOverModal = document.getElementById('game-over-modal');
+            const btnRestart = document.getElementById('btn-restart');
+
+            const btnSound = document.getElementById('btn-sound');
+            const btnCycleWorm = document.getElementById('btn-cycle-worm');
+
+            // Start game handler
+            btnStart.addEventListener('click', () => {
+                if (window.soundSystem) window.soundSystem.ensureContext();
+                const mode = selectMode.value;
+                const count = parseInt(selectWormsCount.value, 10);
+                startModal.classList.add('hidden');
+                game.startNewGame(mode, count);
+            });
+
+            // Restart handler
+            btnRestart.addEventListener('click', () => {
+                gameOverModal.classList.add('hidden');
+                const mode = selectMode.value;
+                const count = parseInt(selectWormsCount.value, 10);
+                game.startNewGame(mode, count);
+            });
+
+            // Arsenal Modal handlers
+            btnOpenArsenal.addEventListener('click', () => {
+                arsenalModal.classList.remove('hidden');
+            });
+            btnCloseArsenal.addEventListener('click', () => {
+                arsenalModal.classList.add('hidden');
+            });
+
+            // Weapon slots click handlers
+            document.querySelectorAll('.weapon-slot, .arsenal-item').forEach(slot => {
+                slot.addEventListener('click', () => {
+                    const weapon = slot.getAttribute('data-weapon');
+                    if (weapon) {
+                        game.selectWeapon(weapon);
+                        // Update active visual on quickbar
+                        document.querySelectorAll('.weapon-slot').forEach(s => {
+                            s.classList.toggle('active', s.getAttribute('data-weapon') === weapon);
+                        });
+                        arsenalModal.classList.add('hidden');
+                    }
+                });
+            });
+
+            // Sound Mute
+            btnSound.addEventListener('click', () => {
+                if (window.soundSystem) {
+                    const isMuted = window.soundSystem.toggleMute();
+                    btnSound.innerText = isMuted ? '🔇' : '🔊';
+                }
+            });
+
+            // Cycle active worm
+            btnCycleWorm.addEventListener('click', () => {
+                game.cycleActiveWorm();
+            });
+
+            // Help modal
+            btnHelp.addEventListener('click', () => {
+                helpModal.classList.toggle('hidden');
+            });
+            btnCloseHelp.addEventListener('click', () => {
+                helpModal.classList.add('hidden');
+            });
+
+            // Escape key closes modals
+            window.addEventListener('keydown', (e) => {
+                if (e.code === 'Escape') {
+                    if (!arsenalModal.classList.contains('hidden')) {
+                        arsenalModal.classList.add('hidden');
+                    } else if (!helpModal.classList.contains('hidden')) {
+                        helpModal.classList.add('hidden');
+                    } else {
+                        helpModal.classList.toggle('hidden');
+                    }
+                }
+            });
+
+            // Mobile Touch Button Controllers
+            const touchLeft = document.getElementById('touch-left');
+            const touchRight = document.getElementById('touch-right');
+            const touchJump = document.getElementById('touch-jump');
+            const touchFire = document.getElementById('touch-fire');
+
+            const bindTouchBtn = (btn, code) => {
+                if (!btn) return;
+                const press = (e) => {
+                    e.preventDefault();
+                    if (window.soundSystem) window.soundSystem.ensureContext();
+                    game.keys[code] = true;
+                    if (code === 'Space' && game.phase === 'turn') {
+                        const active = game.getActiveWorm();
+                        if (active && !active.isBot) {
+                            if (game.selectedWeapon === 'bazooka' || game.selectedWeapon === 'grenade' || game.selectedWeapon === 'cluster') {
+                                game.isCharging = true;
+                                game.chargePower = 0;
+                                game.chargeDirection = 1;
+                            } else {
+                                game.fireCurrentWeapon();
+                            }
+                        }
+                    }
+                };
+                const release = (e) => {
+                    e.preventDefault();
+                    game.keys[code] = false;
+                    if (code === 'Space' && game.isCharging && game.phase === 'turn') {
+                        const active = game.getActiveWorm();
+                        if (active && !active.isBot) {
+                            game.fireCurrentWeapon();
+                        }
+                    }
+                };
+                btn.addEventListener('touchstart', press, { passive: false });
+                btn.addEventListener('touchend', release, { passive: false });
+                btn.addEventListener('mousedown', press);
+                btn.addEventListener('mouseup', release);
+                btn.addEventListener('mouseleave', release);
+            };
+
+            bindTouchBtn(touchLeft, 'ArrowLeft');
+            bindTouchBtn(touchRight, 'ArrowRight');
+            bindTouchBtn(touchJump, 'ArrowUp');
+            bindTouchBtn(touchFire, 'Space');
+
+            // Main Animation Game Loop
+            function gameLoop() {
+
+                game.update();
+                game.render();
+                requestAnimationFrame(gameLoop);
+            }
+            requestAnimationFrame(gameLoop);
+        });
+    </script>
+</body>
+</html>
